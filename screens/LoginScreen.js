@@ -23,13 +23,14 @@ function LoginScreen() {
       );
       setIsAuthenticating(false);
     }
+    authCtx.setIsSignup(false);
   }
 
   if (isAuthenticating) {
     return <LoadingOverlay message="Logging you in..." />;
   }
 
-  return <AuthContent isLogin onAuthenticate={loginHandler} />;
+  return <AuthContent isLogin={true} onAuthenticate={loginHandler} />;
 }
 
 export default LoginScreen;

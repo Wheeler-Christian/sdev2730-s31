@@ -5,12 +5,17 @@ import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AppLoading from "expo-app-loading";
 
-import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
+import GreenScreen from "./screens/GreenScreen";
+import BlueScreen from "./screens/BlueScreen";
+import ValidationScreen from "./screens/ValidationScreen";
+import LoginScreen from "./screens/LoginScreen";
 import WelcomeScreen from "./screens/WelcomeScreen";
+
 import { Colors } from "./constants/styles";
 import AuthContextProvider, { AuthContext } from "./store/auth-context";
 import IconButton from "./components/ui/IconButton";
+import UserContextProvider, { UserContext } from "./store/userContext";
 
 const Stack = createNativeStackNavigator();
 
@@ -29,8 +34,25 @@ function AuthStack() {
   );
 }
 
+function RegistrationStack() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: Colors.primary500 },
+        headerTintColor: "white",
+        contentStyle: { backgroundColor: Colors.primary100 },
+      }}
+    >
+      <Stack.Screen name="Register Name" component={BlueScreen} />
+      <Stack.Screen name="Register Phone" component={GreenScreen} />
+      <Stack.Screen name="Registration Validation" component={ValidationScreen} />
+    </Stack.Navigator>
+  );
+}
+
 function AuthenticatedStack() {
   const authCtx = useContext(AuthContext);
+  const userCtx = useContext(UserContext);
 
   return (
     <Stack.Navigator
@@ -49,7 +71,10 @@ function AuthenticatedStack() {
               icon="exit"
               color={tintColor}
               size={24}
-              onPress={authCtx.logout}
+              onPress={() => {
+                authCtx.logout();
+                userCtx.logout();
+              }}
             />
           ),
         }}
@@ -64,7 +89,8 @@ function Navigation() {
   return (
     <NavigationContainer>
       {!authCtx.isAuthenticated && <AuthStack />}
-      {authCtx.isAuthenticated && <AuthenticatedStack />}
+      {authCtx.isAuthenticated &&
+        (authCtx.isSignup ? <RegistrationStack /> : <AuthenticatedStack />)}
     </NavigationContainer>
   );
 }
@@ -99,7 +125,9 @@ export default function App() {
     <>
       <StatusBar style="light" />
       <AuthContextProvider>
-        <Root />
+        <UserContextProvider>
+          <Root />
+        </UserContextProvider>
       </AuthContextProvider>
     </>
   );
